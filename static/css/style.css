@@ -1,0 +1,163 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F3F1E7;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 20%;
+    background-color: #556B2F;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar img {
+    width: 120px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.sidebar a:hover {
+    text-decoration: underline;
+}
+
+.main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 24px;
+    color: #556B2F;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #E0E0D1;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.search-bar input {
+    border: none;
+    background: none;
+    outline: none;
+    margin-right: 10px;
+}
+
+.content {
+    display: flex;
+    flex-grow: 1;
+}
+
+.menu-board {
+    flex-grow: 1;
+    background-color: #C4C4A1;
+    padding: 20px;
+    border-radius: 10px;
+    margin-right: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.menu-item {
+    width: 150px;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #FAF8EF;
+}
+
+.menu-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.item-form {
+    width: 30%;
+    background-color: #C4C4A1;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.item-form label {
+    margin-bottom: 5px;
+    color: #556B2F;
+}
+
+.item-form input {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+}
+
+.item-form button {
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #556B2F;
+    color: white;
+    cursor: pointer;
+}
+
+.item-form button:hover {
+    background-color: #6B8F37;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .main {
+        padding: 10px;
+    }
+
+    .content {
+        flex-direction: column;
+    }
+
+    .menu-board, .item-form {
+        width: 100%;
+        margin: 10px 0;
+    }
+}

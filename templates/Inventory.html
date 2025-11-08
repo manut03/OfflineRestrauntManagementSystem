@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}"> 
+    <title>Inventory - Good Day Cafe</title>
+    <style>
+        @font-face {
+            font-family: 'Montserrat';
+            src: url("{{ url_for('static', filename='fonts/Montserrat/Montserrat-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Shrikhand';
+            src: url("{{ url_for('static', filename='fonts/Shrikhand/Shrikhand-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #fefae0;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background-color: #606c38;
+            width: 20%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .logo-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #fefae0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .sidebar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .sidebar a.active {
+            color: #dda15e;
+            text-decoration: underline;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+        .main-content {
+            background-color: #fefae0;
+            width: 80%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            font-family: 'Shrikhand', cursive;
+            color: #606c38;
+            margin-bottom: 10px;
+        }
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-nav button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #606c38;
+            color: #fefae0;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .tab-nav button.active {
+            background-color: #944443;
+        }
+        .tab-nav button:hover {
+            background-color: #6B8F37;
+        }
+        .tab-content {
+            width: 100%;
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        .low-stock-header {
+            background-color: #944443;
+            color: #f5f5d5;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 10px;
+            margin: 20px 0;
+            width: 650px;
+        }
+        .low-stock-header a {
+            color: #f5f5d5;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .low-stock-header a:hover {
+            color: #fefae0;
+            text-decoration: underline;
+        }
+        .middle-widget {
+            background-color: rgba(96, 108, 56, 0.38);
+            color: #fefae0;
+            padding: 30px;
+            border-radius: 10px;
+            width: 650px;
+            height: 450px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            overflow-y: auto;
+        }
+        .middle-widget .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .middle-widget .image-frame {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .middle-widget img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .middle-widget .item-name {
+            font-size: 20px;
+            color: #606c38;
+            margin: 0;
+        }
+        .stock-in, .stock-out {
+            background-color: rgba(96, 108, 56, 0.38);
+            color: #fefae0;
+            padding: 30px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 50%;
+            right: 40px;
+            transform: translateY(-50%);
+            width: 350px;
+            height: 550px;
+        }
+        .stock-in h2, .stock-out h2 {
+            font-size: 30px;
+            font-weight: bold;
+            color: #5a6e3a;
+            margin-bottom: 20px;
+        }
+        .stock-in label, .stock-out label {
+            font-size: 16px;
+            color: #5a6e3a;
+            margin-bottom: 5px;
+        }
+        .stock-in input, .stock-out input {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: #dbd6c0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .stock-in button {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: #606c38;
+            color: #fefae0;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .stock-in button:hover {
+            background-color: #6B8F37;
+        }
+        .stock-out button {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background-color: #944443;
+            color: #fefae0;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .stock-out button:hover {
+            background-color: #8F3D31;
+        }
+        .stock-in select {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: #dbd6c0;
+            width: 100%;
+            box-sizing: border-box;
+            color: #5a6e3a;
+        }
+        #image-select {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 10px;
+            }
+            .sidebar .logo-container {
+                width: 80px;
+                height: 80px;
+            }
+            .main-content {
+                width: 100%;
+                padding: 10px;
+            }
+            .middle-widget, .low-stock-header {
+                width: 100%;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            .stock-in, .stock-out {
+                width: 100%;
+                position: static;
+                transform: none;
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Good Day Cafe Logo">
+            </div>
+            <a href="/">Menu</a>
+            <a href="/inventory" class="active">Inventory</a>
+            <a href="/billing">Billing</a>
+            <a href="/reports-and-analysis">Reports and Analysis</a>
+        </div>
+        <div class="main-content">
+            <div class="header">INVENTORY</div>
+            <div class="tab-nav">
+                <button class="tab-button {{ 'active' if active_tab == 'stock-in' else '' }}" data-tab="stock-in">Stock In</button>
+                <button class="tab-button {{ 'active' if active_tab == 'stock-out' else '' }}" data-tab="stock-out">Stock Out</button>
+                <button class="tab-button {{ 'active' if active_tab == 'low-stock' else '' }}" data-tab="low-stock">Low Stock</button>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane {{ 'active' if active_tab == 'stock-in' else '' }}" id="stock-in">
+                    <div class="low-stock-header">
+                        <a href="/lowstock">LOW STOCK</a>
+                    </div>
+                    <div class="middle-widget">
+                        {% if inventory %}
+                            {% for item in inventory %}
+                                <div class="image-container">
+                                    <div class="image-frame">
+                                        <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}">
+                                    </div>
+                                    <span class="item-name">{{ item.name }} ({{ item.quantity }} kg, ₹{{ item.cost_per_unit }}/kg)</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color: #fefae0; width: 100%; text-align: center;">No inventory items available.</p>
+                        {% endif %}
+                    </div>
+                    <div class="stock-in">
+                        <h2>Stock IN</h2>
+                        <label for="item-name-in">New Item Name</label>
+                        <input id="item-name-in" type="text" placeholder="Item Name"/>
+                        <label for="quantity-in">Quantity IN (kg)</label>
+                        <input id="quantity-in" type="number" step="0.01" placeholder="Quantity"/>
+                        <label for="cost-in">Cost per kg/Item (₹)</label>
+                        <input id="cost-in" type="number" step="0.01" placeholder="Cost"/>
+                        <label for="seller-in">Seller</label>
+                        <input id="seller-in" type="text" placeholder="Seller Name"/>
+                        <label for="image-select">Select Image</label>
+                        <select id="image-select" name="image-select"></select>
+                        <button id="add-button">Add</button>
+                    </div>
+                </div>
+                <div class="tab-pane {{ 'active' if active_tab == 'stock-out' else '' }}" id="stock-out">
+                    <div class="low-stock-header">
+                        <a href="/lowstock">LOW STOCK</a>
+                    </div>
+                    <div class="middle-widget">
+                        {% if inventory %}
+                            {% for item in inventory %}
+                                <div class="image-container">
+                                    <div class="image-frame">
+                                        <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}">
+                                    </div>
+                                    <span class="item-name">{{ item.name }} ({{ item.quantity }} kg)</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color: #fefae0; width: 100%; text-align: center;">No inventory items available.</p>
+                        {% endif %}
+                    </div>
+                    <div class="stock-out">
+                        <h2>Stock OUT</h2>
+                        <label for="item-name-out">Item Name</label>
+                        <input id="item-name-out" type="text" placeholder="Item Name"/>
+                        <label for="current-left-out">Quantity Left (kg)</label>
+                        <input id="current-left-out" type="number" step="0.01" placeholder="Quantity Left"/>
+                        <button id="update-button">Update</button>
+                    </div>
+                </div>
+                <div class="tab-pane {{ 'active' if active_tab == 'low-stock' else '' }}" id="low-stock">
+                    <div class="low-stock-header">LOW STOCK</div>
+                    <div class="middle-widget">
+                        {% if low_stock_items %}
+                            {% for item in low_stock_items %}
+                                <div class="image-container">
+                                    <div class="image-frame">
+                                        <img src="{{ url_for('static', filename=item.image|default('default.png')) }}" alt="{{ item.name }}"onerror="this.onerror=null; this.src='{{ url_for('static', filename='default.png') }}';">
+                                    </div>
+                                    <span class="item-name">{{ item.name }} ({{ item.quantity|default('N/A') }} kg)</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color: #f5f5d5; width: 100%; text-align: center; font-size: 24px;">No low stock items available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                if (tabId === 'stock-in') {
+                    window.location.href = '/inventory';
+                } else if (tabId === 'stock-out') {
+                    window.location.href = '/stockout';
+                } else if (tabId === 'low-stock') {
+                    window.location.href = '/lowstock';
+                }
+            });
+        });
+
+        function updateImageDropdown(itemName) {
+            const imageSelect = document.getElementById('image-select');
+            imageSelect.innerHTML = '<option value="">Select an image</option>';
+
+            fetch('/get-images', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item_name: itemName, context: 'inventory' })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+        console.log('Fetched data:', data); // For debugging
+        imageSelect.style.display = 'block'; // Always show the dropdown
+        if (data.exists && data.image) {
+            // If item exists, pre-select its current image
+            const option = document.createElement('option');
+            option.value = data.image.split('/static/')[1];
+            option.text = data.image.split('/static/')[1];
+            option.selected = true; // Pre-select the existing image
+            imageSelect.appendChild(option);
+        }
+        // Add all available images regardless of existence
+        if (data.images && data.images.length > 0) {
+            data.images.forEach(img => {
+                // Avoid duplicating the pre-selected image
+                if (!data.exists || img !== data.image) {
+                    const option = document.createElement('option');
+                    option.value = img.split('/static/')[1];
+                    option.text = img.split('/static/')[1];
+                    imageSelect.appendChild(option);
+                }
+            });
+        }
+    })
+    .catch(error => console.error('Error fetching images:', error));
+        }
+
+        document.getElementById('item-name-in').addEventListener('input', function() {
+            const itemName = this.value.trim();
+            if (itemName) {
+                updateImageDropdown(itemName);
+            } else {
+                document.getElementById('image-select').style.display = 'none';
+            }
+        });
+
+        document.getElementById('add-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('item-name-in').value;
+    const quantity = document.getElementById('quantity-in').value;
+    const cost = document.getElementById('cost-in').value;
+    const seller = document.getElementById('seller-in').value || 'N/A';
+    const image = document.getElementById('image-select').value || 'default.png';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    if (!name || !quantity || !cost) {
+        alert("Please fill in Item Name, Quantity, and Cost.");
+        return;
+    }
+
+    fetch('/add-inventory', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken  // Add CSRF token to headers
+        },
+        body: JSON.stringify({ name, quantity, cost, seller, image })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(error => alert("An error occurred: " + error));
+});
+
+document.getElementById('update-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('item-name-out').value;
+    const quantityLeft = document.getElementById('current-left-out').value;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    if (!name || !quantityLeft) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
+    fetch('/remove-inventory', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken  // Add CSRF token to headers
+        },
+        body: JSON.stringify({ name, quantity: quantityLeft })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(error => {
+        alert("An error occurred: " + error);
+    });
+});
+
+        window.addEventListener('load', function() {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) {
+                const tabButton = document.querySelector(`.tab-button[data-tab="${hash}"]`);
+                if (tabButton) {
+                    tabButton.click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Good Day Cafe</title>
+    <style>
+        @font-face {
+            font-family: 'Montserrat';
+            src: url("{{ url_for('static', filename='fonts/Montserrat/Montserrat-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Shrikhand';
+            src: url("{{ url_for('static', filename='fonts/Shrikhand/Shrikhand-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #fefae0;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 20%;
+            background-color: #5f6c37;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .logo-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #fefae0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .sidebar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .sidebar a {
+            text-decoration: none;
+            color: #fefae0;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+        .sidebar a.active {
+            color: #dda15e;
+            text-decoration: underline;
+        }
+        .main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            height: 100%;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #606c38;
+            font-family: 'Shrikhand', cursive;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #E0E0D1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .search-bar input {
+            border: none;
+            background: none;
+            outline: none;
+            margin-right: 50px;
+        }
+        .search-bar svg {
+            fill: #556B2F;
+        }
+        .content {
+            display: flex;
+            flex-grow: 1;
+            align-items: stretch;
+            height: calc(100% - 60px);
+            overflow: hidden;
+        }
+        .middle-widget {
+            flex-grow: 1;
+            background-color: rgba(96, 108, 56, 0.38);
+            color: #fefae0;
+            padding: 30px;
+            border-radius: 10px;
+            margin-right: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .category-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .category-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #556B2F;
+            color: #fefae0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .category-button:hover {
+            background-color: #6B8F37;
+        }
+        .category-button.active {
+            background-color: #dda15e;
+        }
+        .items-container {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            overflow-y: auto;
+        }
+        .items-container::-webkit-scrollbar {
+            width: 10px;
+        }
+        .items-container::-webkit-scrollbar-track {
+            background: #fefae0;
+            border-radius: 5px;
+        }
+        .items-container::-webkit-scrollbar-thumb {
+            background: #606c38;
+            border-radius: 5px;
+        }
+        .items-container::-webkit-scrollbar-thumb:hover {
+            background: #556B2F;
+        }
+        .middle-widget .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        .middle-widget .image-container.selected {
+            background-color: #606c38;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        .middle-widget .image-frame {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .middle-widget img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .middle-widget h2 {
+            font-size: 20px;
+            color: #fefae0;
+            margin: 0;
+        }
+        .item-form {
+            width: 30%;
+            background-color: rgba(96, 108, 56, 0.38);
+            color: #fefae0;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .item-form label {
+            margin-bottom: 5px;
+            color: #556B2F;
+        }
+        .item-form input, .item-form select {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+        .item-form button {
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #556B2F;
+            color: #fefae0;
+            cursor: pointer;
+        }
+        .item-form button:hover {
+            background-color: #6B8F37;
+        }
+        #delete-button {
+            background-color: #944443;
+            display: none;
+        }
+        #delete-button:hover {
+            background-color: #b55554;
+        }
+        .item-form select {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            color: #556B2F;
+        }
+        #image-select {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                align-items: flex-start;
+            }
+            .main {
+                padding: 10px;
+            }
+            .content {
+                flex-direction: column;
+                height: auto;
+            }
+            .middle-widget, .item-form {
+                width: 100%;
+                margin: 10px 0;
+                height: auto;
+            }
+            .middle-widget {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            .sidebar .logo-container {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Good Day Cafe Logo">
+            </div>
+            <a href="/" class="active">Menu</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/billing">Billing</a>
+            <a href="/reports-and-analysis">Reports and Analysis</a>
+        </div>
+        <div class="main">
+            <div class="header">
+                <h1>Menu Board</h1>
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search...">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 20 20" width="20">
+                        <path d="M8 12c2.21 0 4-1.79 4-4s-1.79-4-4 1.79-4 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm6.54 10.54l4 4-1.42 1.42-4-4c-1.17.85-2.61 1.34-4.12 1.34-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7c0 1.51-.49 2.95-1.34 4.12z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="content">
+                <div class="middle-widget">
+                    <div class="category-buttons">
+                        {% for category in categories %}
+                            <button class="category-button {% if loop.first %}active{% endif %}" data-category="{{ category[1] }}">{{ category[1] }}</button>
+                        {% endfor %}
+                    </div>
+                    <div class="items-container">
+                        {% if menu %}
+                            {% for item in menu %}
+                                <div class="image-container" data-id="{{ item.id }}" data-category="{{ item.category_name }}">
+                                    <div class="image-frame">
+                                        <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}">
+                                    </div>
+                                    <h2>{{ item.name }} - ₹{{ item.price }}</h2>
+                                    <p>{{ 'Stock' if item.category_name == 'Quick Bites' else 'Units per Order' }}: {{ item.quantity }}</p>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color: #fefae0; width: 100%; text-align: center;">No menu items available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="item-form">
+                    <label for="item-name">New Item Name</label>
+                    <input type="text" id="item-name" placeholder="Item Name">
+                    <label for="item-price">Price of 1 Unit (₹)</label>
+                    <input type="number" id="item-price" placeholder="Price" step="0.01">
+                    <label for="item-quantity" id="quantity-label">Quantity</label>
+                    <input type="number" id="item-quantity" placeholder="Quantity">
+                    <label for="item-category">Category</label>
+                    <select id="item-category" onchange="updateQuantityLabel()">
+                        {% for category in categories %}
+                            <option value="{{ category[0] }}">{{ category[1] }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="image-select">Select Image</label>
+                    <select id="image-select" name="image-select"></select>
+                    <button id="add-button">Add</button>
+                    <button id="add-category-button">Create New Category</button>
+                    <button id="discard-button">Discard</button>
+                    <button id="delete-button">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedItemId = null;
+        let allItems = [];
+
+        function updateQuantityLabel() {
+            const categorySelect = document.getElementById('item-category');
+            const selectedOption = categorySelect.options[categorySelect.selectedIndex].text;
+            const quantityLabel = document.getElementById('quantity-label');
+            if (selectedOption === 'Quick Bites') {
+                quantityLabel.textContent = 'Stock Available';
+            } else if (selectedOption === 'Fresh Fix') {
+                quantityLabel.textContent = 'Units per Order';
+            } else {
+                quantityLabel.textContent = 'Quantity';
+            }
+        }
+
+        function displayItemsByCategory(categoryName) {
+            fetch(`/items-by-category/${categoryName}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(items => {
+                    allItems = items;
+                    renderItems(items);
+                })
+                .catch(error => {
+                    console.error("Error fetching items:", error);
+                    alert("An error occurred while fetching items: " + error);
+                });
+        }
+
+        function renderItems(items) {
+            const itemsContainer = document.querySelector('.items-container');
+            itemsContainer.innerHTML = '';
+            if (items.length === 0) {
+                itemsContainer.innerHTML = '<p style="color: #fefae0; width: 100%; text-align: center;">No menu items available.</p>';
+            } else {
+                items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.classList.add('image-container');
+                    itemDiv.setAttribute('data-id', item.id);
+                    itemDiv.setAttribute('data-category', item.category_name);
+                    itemDiv.innerHTML = `
+                        <div class="image-frame">
+                            <img src="/static/${item.image}" alt="${item.name}">
+                        </div>
+                        <h2>${item.name} - ₹${item.price}</h2>
+                        <p>${item.category_name === 'Quick Bites' ? 'Stock' : 'Units per Order'}: ${item.quantity}</p>
+                    `;
+                    itemsContainer.appendChild(itemDiv);
+                    itemDiv.addEventListener('click', function() {
+                        document.querySelectorAll('.middle-widget .image-container').forEach(i => i.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedItemId = this.getAttribute('data-id');
+                        document.getElementById('delete-button').style.display = 'block';
+                    });
+                });
+            }
+        }
+
+        function updateImageDropdown(itemName) {
+            const imageSelect = document.getElementById('image-select');
+            imageSelect.innerHTML = '<option value="">Select an image</option>';
+
+            if (!itemName) {
+                imageSelect.style.display = 'none';
+                return;
+            }
+
+            fetch('/get-images', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item_name: itemName, context: 'menu' })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${err.error || 'Unknown error'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.exists) {
+                    imageSelect.style.display = 'none';
+                } else {
+                    imageSelect.style.display = 'block';
+                    data.images.forEach(img => {
+                        const option = document.createElement('option');
+                        option.value = img.split('/static/')[1];
+                        option.text = img.split('/static/')[1];
+                        imageSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching images:', error);
+                alert(`Failed to load images: ${error.message}`);
+            });
+        }
+
+        let debounceTimer;
+        document.getElementById('item-name').addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const itemName = this.value.trim();
+            debounceTimer = setTimeout(() => {
+                updateImageDropdown(itemName);
+            }, 300);  // Wait 300ms before sending request
+        });
+
+        document.querySelectorAll('.category-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.category-button').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                const categoryName = this.getAttribute('data-category');
+                displayItemsByCategory(categoryName);
+            });
+        });
+
+        displayItemsByCategory('Quick Bites');
+        updateQuantityLabel();
+
+        document.getElementById('search-input').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredItems = allItems.filter(item => item.name.toLowerCase().includes(searchTerm));
+            renderItems(filteredItems);
+        });
+
+        document.getElementById('add-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('item-name').value.trim();
+            const price = document.getElementById('item-price').value;
+            const quantity = document.getElementById('item-quantity').value;
+            const category_id = document.getElementById('item-category').value;
+            const image = document.getElementById('image-select').value || 'default.png';
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            if (!name || !price || !quantity || !category_id) {
+                alert("Please fill in all fields: Name, Price, Quantity, and Category.");
+                return;
+            }
+
+            const priceNum = parseFloat(price);
+            const quantityNum = parseInt(quantity, 10);
+            if (isNaN(priceNum) || priceNum <= 0) {
+                alert("Price must be a positive number.");
+                return;
+            }
+            if (isNaN(quantityNum) || quantityNum < 0) {
+                alert("Quantity must be a non-negative number.");
+                return;
+            }
+
+            fetch('/add-item', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({ name, price: priceNum, quantity: quantityNum, category_id, image })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'Unknown error');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message);
+                location.reload();
+            })
+            .catch(error => alert(`Failed to add item: ${error.message}`));
+        });
+
+        document.getElementById('add-category-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            const categoryName = prompt("Enter new category name:");
+            if (!categoryName) {
+                alert("Category name is required.");
+                return;
+            }
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch('/add-category', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({ name: categoryName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => alert("An error occurred: " + error));
+        });
+
+        document.getElementById('discard-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('item-name').value = '';
+            document.getElementById('item-price').value = '';
+            document.getElementById('item-quantity').value = '';
+            document.getElementById('item-category').selectedIndex = 0;
+            document.getElementById('image-select').style.display = 'none';
+            updateQuantityLabel();
+            document.getElementById('delete-button').style.display = 'none';
+            selectedItemId = null;
+            document.querySelectorAll('.image-container').forEach(item => item.classList.remove('selected'));
+        });
+
+        document.getElementById('delete-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (selectedItemId === null) {
+                alert("Please select an item to delete.");
+                return;
+            }
+            if (confirm("Are you sure you want to delete this item?")) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch('/delete-item', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ id: selectedItemId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert("Error: " + data.error);
+                    }
+                })
+                .catch(error => alert("An error occurred: " + error));
+            }
+        });
+    </script>
+</body>
+</html>

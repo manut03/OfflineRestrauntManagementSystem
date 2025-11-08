@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Good Day Cafe Billing</title>
+    <style>
+        @font-face {
+            font-family: 'Montserrat';
+            src: url("{{ url_for('static', filename='fonts/Montserrat/Montserrat-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Shrikhand';
+            src: url("{{ url_for('static', filename='fonts/Shrikhand/Shrikhand-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: #fefae0;
+        }
+        .sidebar {
+            background-color: #5f6c37;
+            width: 20%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sidebar .logo-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #fefae0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .sidebar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .sidebar a {
+            color: #f5f2d0;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .sidebar a.active {
+            color: #dda15e;
+            text-decoration: underline;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #606c38;
+            font-family: 'Shrikhand', cursive;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            border: 1px solid #6b7755;
+            border-radius: 20px;
+            padding: 5px 10px;
+            width: 300px;
+            margin-top: 10px;
+            background-color: transparent;
+        }
+        .search-bar i {
+            color: #6b7755;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+        .search-bar input {
+            border: none;
+            outline: none;
+            background-color: transparent;
+            flex: 1;
+            padding: 5px;
+            font-size: 16px;
+        }
+        .content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            background-color: rgba(96, 108, 56, 0.38);
+            color: #fefae0;
+            border-radius: 20px;
+            margin-top: 20px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .content.order-confirmation {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            font-size: 15px;
+        }
+        .content .item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        .content .item img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #fff;
+            object-fit: cover;
+        }
+        .content .item span {
+            font-size: 16px;
+            color: #f5f2d0;
+            margin-top: 5px;
+        }
+        .order-summary {
+            width: 30%;
+            background-color: rgba(96, 108, 56, 0.38);
+            color: #fefae0;
+            border-radius: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+            margin: 20px;
+        }
+        .order-summary h2 {
+            font-size: 20px;
+            color: #6b7755;
+            margin-bottom: 20px;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #dbd6c0;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .order-item span {
+            font-size: 16px;
+            color: #6b7755;
+        }
+        .order-summary button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .order-summary button:first-of-type {
+            background-color: #606c38;
+            color: #dbd6c0;
+        }
+        .order-summary button:last-of-type {
+            background-color: #944443;
+            color: #fefae0;
+        }
+        .print-button {
+            background-color: #606c38;
+            color: #f5f2d0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .content.order-confirmation, .content.order-confirmation * {
+                visibility: visible;
+            }
+            .content.order-confirmation {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background-color: #fff;
+                color: #000;
+                border: none;
+            }
+            .print-button {
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+            }
+            .main-content {
+                flex-direction: column;
+            }
+            .order-summary {
+                width: 100%;
+                margin: 20px 0;
+            }
+            .content {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Good Day Cafe Logo"/>
+        </div>
+        <a href="/">Menu</a>
+        <a href="/inventory">Inventory</a>
+        <a href="/billing" class="active">Billing</a>
+        <a href="/reports-and-analysis">Reports and Analysis</a>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <h1>BILLING</h1>
+        </div>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input id="search-input" placeholder="Search Menu Items" type="text" {{ 'disabled' if order else '' }}/>
+            <i class="fas fa-microphone"></i>
+        </div>
+        {% if order %}
+            <div class="content order-confirmation">
+                <h2>Order Number: {{ order.order_number }}</h2>
+                <p>Order Details:</p>
+                {% for item in order_items %}
+                    <p>{{ item.item_name }} x{{ item.quantity }} - ₹{{ item.price * item.quantity }}</p>
+                {% endfor %}
+                <p>Sub Total: ₹{{ order.subtotal }}</p>
+                <p>Taxes: ₹{{ order.taxes }}</p>
+                <p>Total: ₹{{ order.total }}</p>
+                <p>Payment Method: {{ order.payment_method or 'Cash (Pending)' }}</p>
+                <button class="print-button" onclick="completePaymentAndPrint('{{ order.order_number }}')">Print Receipt</button>
+            </div>
+        {% else %}
+            <div class="content" id="menu-items">
+                {% for item in menu_items %}
+                    <div class="item" data-name="{{ item[0] }}" data-price="{{ item[1] }}">
+                        <img src="{{ url_for('static', filename=item[2]) }}" alt="{{ item[0] }}">
+                        <span>{{ item[0] }} (₹{{ item[1] }})</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <div class="order-summary">
+        <h2>My Order</h2>
+        <div id="order-items">
+            {% if order %}
+                {% for item in order_items %}
+                    <div class="order-item">
+                        <span>{{ item.item_name }} x{{ item.quantity }}</span>
+                        <span>₹{{ item.price * item.quantity }}</span>
+                    </div>
+                {% endfor %}
+                <div class="order-item" id="subtotal">
+                    <span>Sub Total</span>
+                    <span>₹{{ order.subtotal }}</span>
+                </div>
+            {% else %}
+                <!-- Dynamically populated via JavaScript -->
+            {% endif %}
+        </div>
+        {% if order %}
+            <button onclick="completePaymentAndRedirect('{{ order.order_number }}')">New Order</button>
+            <button onclick="cancelOrder('{{ order.order_number }}')">Cancel Order</button>
+        {% else %}
+            <button id="proceed-button">Proceed to Payment</button>
+            <button id="cancel-button">Cancel Order</button>
+        {% endif %}
+    </div>
+
+    <!-- Shared JavaScript functions -->
+    <script>
+        function completePayment(orderNumber, callback) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            fetch('/billing/complete', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({ order_number: orderNumber })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/billing';
+                    callback();
+                } else {
+                    if (data.error === "Order not found or already processed") {
+                        alert("This order has already been processed or does not exist.");
+                        window.location.href = '/billing';
+                        callback();
+                    } else if (data.error.includes("Insufficient stock")) {
+                        alert(data.error);
+                        window.location.href = '/billing';
+                    } else {
+                        alert("Error completing payment: " + data.error);
+                    }
+                }
+            })
+            .catch(error => {
+                alert("An error occurred while completing the payment: " + error);
+                console.error(error);
+            });
+        }
+
+        function completePaymentAndPrint(orderNumber) {
+            completePayment(orderNumber, function() {
+                window.print();
+            });
+        }
+
+        function completePaymentAndRedirect(orderNumber) {
+            completePayment(orderNumber, function() {});
+        }
+
+        function cancelOrder(orderNumber) {
+            if (confirm("Are you sure you want to cancel this order?")) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                fetch('/billing/cancel', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ order_number: orderNumber })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert("Order cancelled successfully!");
+                        window.location.href = '/billing';
+                    } else {
+                        alert("Error cancelling order: " + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert("An error occurred while cancelling the order: " + error);
+                    console.error(error);
+                });
+            }
+        }
+    </script>
+
+    <!-- Selection page JavaScript (only when no order) -->
+    {% if not order %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let order = [];
+            let subtotal = 0;
+
+            document.getElementById('search-input').addEventListener('input', function(e) {
+                const search = e.target.value.toLowerCase();
+                const items = document.querySelectorAll('.content .item');
+                items.forEach(item => {
+                    const name = item.getAttribute('data-name').toLowerCase();
+                    item.style.display = name.includes(search) ? 'flex' : 'none';
+                });
+            });
+
+            document.querySelectorAll('.content .item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const name = this.getAttribute('data-name');
+                    const price = parseFloat(this.getAttribute('data-price'));
+                    const existing = order.find(i => i.name === name);
+                    if (existing) {
+                        existing.quantity += 1;
+                    } else {
+                        order.push({ name, price, quantity: 1 });
+                    }
+                    updateOrderSummary();
+                });
+            });
+
+            function updateOrderSummary() {
+                const orderItemsDiv = document.getElementById('order-items');
+                if (!orderItemsDiv) {
+                    console.error("Element with ID 'order-items' not found.");
+                    return;
+                }
+                orderItemsDiv.innerHTML = '';
+                subtotal = 0;
+                order.forEach(item => {
+                    const total = item.price * item.quantity;
+                    subtotal += total;
+                    orderItemsDiv.innerHTML += `
+                        <div class="order-item">
+                            <span>${item.name} x${item.quantity}</span>
+                            <span>₹${total.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                document.getElementById('subtotal').innerHTML = `
+                    <span>Sub Total</span>
+                    <span>₹${subtotal.toFixed(2)}</span>
+                `;
+            }
+
+            document.getElementById('proceed-button').addEventListener('click', function() {
+                if (order.length === 0) {
+                    alert("No items in the order!");
+                    return;
+                }
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                fetch('/billing/proceed', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ items: order, subtotal: subtotal })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = `/billing/confirm?order_number=${data.order_number}`;
+                    } else {
+                        alert("Error: " + data.error);
+                    }
+                })
+                .catch(error => alert("An error occurred: " + error));
+            });
+
+            document.getElementById('cancel-button').addEventListener('click', function() {
+                order = [];
+                subtotal = 0;
+                updateOrderSummary();
+            });
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

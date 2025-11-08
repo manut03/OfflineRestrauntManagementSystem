@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analysis Dashboard</title>
+    <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
+    <style>
+        @font-face {
+            font-family: 'Montserrat';
+            src: url("{{ url_for('static', filename='fonts/Montserrat/Montserrat-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Shrikhand';
+            src: url("{{ url_for('static', filename='fonts/Shrikhand/Shrikhand-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            background-color: #fefae0;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background-color: #606c38;
+            width: 20%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .sidebar img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            color: #fefae0;
+            text-decoration: none;
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            color: #dda15e;
+            text-decoration: underline;
+        }
+        .main-content {
+            width: 80%;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .icon-container {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            width: 50%;
+            margin-top: 20px;
+        }
+        .icon-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            background-color: rgba(96, 108, 56, 0.38);
+            padding: 30px;
+            border-radius: 50%;
+            text-align: center;
+            height: 100px;
+            cursor: pointer;
+        }
+        .icon-card:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .icon-card.active {
+            background-color: rgba(221, 161, 94, 0.5);
+        }
+        .icon-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+        }
+        .icon-card p {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #fefae0;
+            font-weight: bold;
+        }
+        /* Updated CSS to fix section visibility */
+        .section {
+            display: none !important; /* Ensure sections are hidden by default */
+        }
+        .section.active {
+            display: block !important; /* Show the active section */
+        }
+
+        /* Report Section Styles */
+        #report-section {
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        #report-section.active {
+            display: flex !important; /* Ensure flex display when active */
+        }
+        #report-section .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+        #report-section .header-left {
+            font-family: 'Shrikhand', cursive;
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        #report-section .header-left img {
+            width: 80px;
+            height: 80px;
+            margin-right: 10px;
+        }
+        #report-section .header-left h1 {
+            font-size: 24px;
+            color: #606c38;
+            margin: 0;
+        }
+        #report-section .low-stock {
+            background-color: #944443;
+            margin-left: 20px;
+            color: #fefae0;
+            width: 80px;
+            height: 80px;
+            border: none;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            text-decoration: none;
+        }
+        #report-section .low-stock:hover {
+            background-color: #b55554;
+        }
+        #report-section .icon-container {
+            width: 100%;
+        }
+        #report-section .content-wrapper {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+        }
+        #report-section .today {
+            background-color: rgba(96, 108, 56, 0.38);
+            color: #fefae0;
+            padding: 30px;
+            border-radius: 10px;
+            width: 50%;
+            height: auto;
+        }
+        #report-section .today h2 {
+            font-size: 24px;
+            color: #606c38;
+        }
+        #report-section .today p {
+            font-size: 20px;
+            color: #606c38;
+            margin: 15px 0;
+        }
+        #report-section .today p span {
+            color: #944443;
+        }
+        #report-section .print-report {
+            background-color: rgba(96, 108, 56, 0.38);
+            color: #fefae0;
+            padding: 30px;
+            border-radius: 10px;
+            width: 35%;
+            height: auto;
+            min-height: calc(100vh - 180px);
+        }
+        #report-section .print-report h2 {
+            font-size: 18px;
+            color: #556B2F;
+            margin-bottom: 15px;
+        }
+        #report-section .print-report h3 {
+            font-size: 16px;
+            color: #556B2F;
+            margin: 15px 0 10px;
+        }
+        #report-section .print-report input,
+        #report-section .print-report select {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background-color: #dbd6c0;
+            color: #556B2F;
+            font-size: 14px;
+        }
+        #report-section .print-report label {
+            color: #556B2F;
+            font-size: 14px;
+            margin-top: 10px;
+            display: block;
+        }
+        #report-section .print-report button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background-color: #944443;
+            color: #dbd6c0;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        #report-section .print-report button:hover {
+            background-color: #b55554;
+        }
+        #report-section table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #report-section th, #report-section td {
+            border: 1px solid #606c38;
+            padding: 8px;
+            text-align: left;
+        }
+        #report-section th {
+            background-color: #606c38;
+            color: #fefae0;
+        }
+
+        /* Orders Section Styles */
+        #orders-section .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        #orders-section .header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+        }
+        #orders-section .header h1 {
+            color: #606c38;
+            font-family: 'Shrikhand', cursive;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #orders-section .report-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+            border-bottom: 1px solid #606c38;
+            padding-bottom: 10px;
+        }
+        #orders-section .report-item label {
+            font-size: 15px;
+            font-weight: bold;
+            color: #606c38;
+            width: 20%;
+        }
+        #orders-section .report-item div {
+            display: flex;
+            align-items: center;
+            width: 50%;
+        }
+        #orders-section .report-item input {
+            background-color: #dbd6c0;
+            font-weight: bold;
+            border: none;
+            padding: 5px 10px;
+            margin: 0 5px;
+            border-radius: 5px;
+            color: #606c38;
+        }
+        #orders-section .report-item button {
+            background-color: #944443;
+            font-weight: bold;
+            color: #dbd6c0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        #orders-section .report-item button:hover {
+            background-color: #b55554;
+        }
+        #orders-section .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        #orders-section table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #orders-section thead {
+            background-color: #606c38;
+            color: #fefae0;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        #orders-section thead th {
+            padding: 20px;
+            text-align: left;
+        }
+        #orders-section tbody {
+            background-color: transparent;
+            color: #606c38;
+        }
+        #orders-section tbody td {
+            padding: 20px;
+            border-bottom: 1px solid #606c38;
+        }
+        #orders-section .table-container::-webkit-scrollbar {
+            width: 10px;
+        }
+        #orders-section .table-container::-webkit-scrollbar-track {
+            background: #fefae0;
+        }
+        #orders-section .table-container::-webkit-scrollbar-thumb {
+            background: #606c38;
+            border-radius: 5px;
+        }
+        #orders-section .table-container::-webkit-scrollbar-thumb:hover {
+            background: #dda15e;
+        }
+
+        /* Sales Section Styles */
+        #sales-section h1 {
+            font-family: 'Shrikhand', cursive;
+            color: #606c38;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+        }
+        #sales-section h1 img {
+            width: 80px;
+            height: 80px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+        #sales-section .report-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+            border-bottom: 1px solid #606c38;
+            padding-bottom: 10px;
+        }
+        #sales-section .report-item label {
+            font-size: 15px;
+            font-weight: bold;
+            color: #606c38;
+            width: 20%;
+        }
+        #sales-section .report-item div {
+            display: flex;
+            align-items: center;
+            width: 50%;
+        }
+        #sales-section .report-item input {
+            background-color: #dbd6c0;
+            font-weight: bold;
+            border: none;
+            padding: 5px 10px;
+            margin: 0 5px;
+            border-radius: 5px;
+        }
+        #sales-section .report-item button {
+            background-color: #944443;
+            font-weight: bold;
+            color: #dbd6c0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        #sales-section #report-output {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #606c38;
+            border-radius: 5px;
+            color: #606c38;
+        }
+        #sales-section #report-output h2, #sales-section #report-output h3, #sales-section #report-output h4 {
+            color: #606c38;
+        }
+        #sales-section #report-output table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        #sales-section #report-output th, #sales-section #report-output td {
+            padding: 10px;
+            border-bottom: 1px solid #606c38;
+            text-align: left;
+        }
+        #sales-section #report-output th {
+            background-color: #606c38;
+            color: #fefae0;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+            }
+            .main-content {
+                width: 100%;
+            }
+            .icon-container {
+                flex-direction: column;
+                width: 100%;
+            }
+            .icon-card {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            #report-section .content-wrapper {
+                flex-direction: column;
+            }
+            #report-section .today, #report-section .print-report {
+                width: 100%;
+            }
+            #orders-section .report-item, #sales-section .report-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #orders-section .report-item input, #orders-section .report-item button,
+            #sales-section .report-item input, #sales-section .report-item button {
+                margin: 5px 0;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+            body {
+                background-color: #fff;
+                color: #000;
+                margin: 0;
+            }
+            .sidebar, .icon-container {
+                display: none;
+            }
+            .main-content {
+                padding: 0;
+                overflow: visible;
+                width: 100%;
+            }
+            .section {
+                display: none !important;
+            }
+            .section.active {
+                display: block !important;
+            }
+            #report-section .print-report, #report-section .header, #report-section .today {
+                display: none;
+            }
+            #report-section table, #orders-section .table-container, #sales-section #report-output {
+                margin: 0;
+                max-height: none;
+                overflow-y: visible;
+            }
+            #orders-section thead {
+                background-color: #fff;
+                color: #000;
+            }
+            #orders-section tbody td, #sales-section #report-output td {
+                border: 1px solid #000;
+                color: #000;
+            }
+            #sales-section #report-output {
+                border: none;
+                padding: 0;
+                background-color: #fff;
+            }
+            #sales-section #report-output h2, #sales-section #report-output h3, #sales-section #report-output h4 {
+                color: #000;
+            }
+            #sales-section #report-output th {
+                background-color: #fff;
+                color: #000;
+                border: 1px solid #000;
+                font-weight: bold;
+            }
+            #sales-section #report-output td {
+                border: 1px solid #000;
+                color: #000;
+            }
+            #report-output {
+                background-color: #fff;
+                color: #000;
+            }
+            #report-output h2, #report-output h3, #report-output p {
+                color: #000;
+            }
+            #report-output table {
+                border-collapse: collapse;
+            }
+            #report-output th, #report-output td {
+                border: 1px solid #000;
+                color: #000;
+            }
+            #report-output th {
+                background-color: #fff;
+                color: #000;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Good Day Cafe Logo" class="logo">
+        <a href="/">Menu</a>
+        <a href="/inventory">Inventory</a>
+        <a href="/billing">Billing</a>
+        <a href="/reports-and-analysis" class="active">Reports & Analysis</a>
+    </div>
+    <div class="main-content">
+        <!-- Add CSRF token as a hidden input -->
+        <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+        <!-- Report Section -->
+        <div id="report-section" class="section active">
+            <div class="header">
+                <div class="header-left">
+                    <img src="{{ url_for('static', filename='reports-icon.png') }}">
+                    <h1>REPORT DASHBOARD</h1>
+                    <a href="/inventory#low-stock" class="low-stock">LOW STOCK!</a>
+                </div>
+            </div>
+            <div class="icon-container">
+                <div class="icon-card" data-section="orders-section">
+                    <img src="{{ url_for('static', filename='orders-icon.png') }}">
+                    <p>Orders</p>
+                </div>
+                <div class="icon-card" data-section="sales-section">
+                    <img src="{{ url_for('static', filename='sales-icon.png') }}">
+                    <p>Sales</p>
+                </div>
+                <div class="icon-card active" data-section="report-section">
+                    <img src="{{ url_for('static', filename='reports-icon.png') }}">
+                    <p>Reports</p>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <div class="today">
+                    <h2>TODAY</h2>
+                    <p>Today's Sales: ₹<span>{{ today_sales|float|round(2) }}</span></p>
+                    <p>Today's Orders: <span>{{ today_orders }}</span></p>
+                    <p>Most Sold Item: <span>{{ most_sold_item }} ({{ most_sold_category }})</span></p>
+                    <h3>Most Sold by Category</h3>
+                    {% for category, item in most_sold_by_category.items() %}
+                        <p>{{ category }}: <span>{{ item.item_name }} ({{ item.quantity }})</span></p>
+                    {% endfor %}
+                </div>
+                <div class="print-report">
+                    <h2>Print Weekly Report</h2>
+                    <input id="report-from-date" type="date" placeholder="Start Date (YYYY-MM-DD)"/>
+                    <button id="report-print-weekly-report">Print</button>
+                    <h3>Reports</h3>
+                </div>
+            </div>
+            {% if sales_data %}
+            <h2>Sales Report</h2>
+            <table>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Quantity Sold</th>
+                    <th>Revenue</th>
+                </tr>
+                {% for item in sales_data %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.qty_sold }}</td>
+                    <td>₹{{ item.revenue|round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <form method="POST" action="/reports-and-analysis/export_pdf">
+                <input type="hidden" name="report_type" value="{{ report_type }}">
+                <input type="hidden" name="start_date" value="{{ request.form['start_date'] }}">
+                <input type="hidden" name="end_date" value="{{ request.form['end_date'] }}">
+            </form>
+            <form method="POST" action="/reports-and-analysis/export_chart">
+                <input type="hidden" name="report_type" value="{{ report_type }}">
+                <input type="hidden" name="start_date" value="{{ request.form['start_date'] }}">
+                <input type="hidden" name="end_date" value="{{ request.form['end_date'] }}">
+                <button type="submit">Export Chart</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders-section" class="section">
+            <div class="header">
+                <img src="{{ url_for('static', filename='orders-icon.png') }}">
+                <h1>REPORT DASHBOARD (Orders History)</h1>
+            </div>
+            <div class="icon-container">
+                <div class="icon-card active" data-section="orders-section">
+                    <img src="{{ url_for('static', filename='orders-icon.png') }}">
+                    <p>Orders</p>
+                </div>
+                <div class="icon-card" data-section="sales-section">
+                    <img src="{{ url_for('static', filename='sales-icon.png') }}">
+                    <p>Sales</p>
+                </div>
+                <div class="icon-card" data-section="report-section">
+                    <img src="{{ url_for('static', filename='reports-icon.png') }}">
+                    <p>Reports</p>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <div class="report-item">
+                    <label>Order History</label>
+                    <div>
+                        <label>From:</label>
+                        <input type="date" id="orders-from" name="orders-from"/>
+                        <label>To:</label>
+                        <input type="date" id="orders-to" name="orders-to"/>
+                    </div>
+                    <button id="orders-print-btn">PRINT</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order NO</th>
+                                <th>Order Details</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table">
+                            {% if orders %}
+                                {% for order in orders %}
+                                    <tr>
+                                        <td>{{ order.order_number }}</td>
+                                        <td>{{ order.items }}</td>
+                                        <td>₹{{ order.total|float|round(2) }}</td>
+                                        <td>{{ order.status|capitalize }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4">No orders found for the selected date range.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Section -->
+        <div id="sales-section" class="section">
+            <div class="header">
+                <h1>
+                    <img src="{{ url_for('static', filename='sales-icon.png') }}">
+                    REPORT DASHBOARD (Sales History)
+                </h1>
+            </div>
+            <div class="icon-container">
+                <div class="icon-card" data-section="orders-section">
+                    <img src="{{ url_for('static', filename='orders-icon.png') }}">
+                    <p>Orders</p>
+                </div>
+                <div class="icon-card active" data-section="sales-section">
+                    <img src="{{ url_for('static', filename='sales-icon.png') }}">
+                    <p>Sales</p>
+                </div>
+                <div class="icon-card" data-section="report-section">
+                    <img src="{{ url_for('static', filename='reports-icon.png') }}">
+                    <p>Reports</p>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <div class="report-item">
+                    <label>Most Sold Item</label>
+                    <div>
+                        <label>From:</label>
+                        <input type="date" id="most-sold-from" name="most-sold-from"/>
+                        <label>To:</label>
+                        <input type="date" id="most-sold-to" name="most-sold-to"/>
+                    </div>
+                    <button onclick="generateSalesReport('most-sold')">PRINT</button>
+                    <button onclick="exportSalesChart('most-sold')">Export Chart</button>
+                </div>
+                <div class="report-item">
+                    <label>Most Used Grocery</label>
+                    <div>
+                        <label>From:</label>
+                        <input type="date" id="most-used-from" name="most-used-from"/>
+                        <label>To:</label>
+                        <input type="date" id="most-used-to" name="most-used-to"/>
+                    </div>
+                    <button onclick="generateSalesReport('most-used')">PRINT</button>
+                    <button onclick="exportSalesChart('most-used')">Export Chart</button>
+                </div>
+                <div class="report-item">
+                    <label>Custom Sales Report</label>
+                    <div>
+                        <label>From:</label>
+                        <input type="date" id="custom-from" name="custom-from"/>
+                        <label>To:</label>
+                        <input type="date" id="custom-to" name="custom-to"/>
+                    </div>
+                    <button onclick="generateSalesReport('custom')">PRINT</button>
+                    <button onclick="exportSalesChart('custom')">Export Chart</button>
+                </div>
+                <div class="report-item">
+                    <label>Past 6 Months Report</label>
+                    <div></div>
+                    <button onclick="generateSalesReport('6-months')">PRINT</button>
+                    <button onclick="exportSalesChart('6-months')">Export Chart</button>
+                </div>
+                <div class="report-item">
+                    <label>Past 12 Months Report</label>
+                    <div></div>
+                    <button onclick="generateSalesReport('12-months')">PRINT</button>
+                    <button onclick="exportSalesChart('12-months')">Export Chart</button>
+                </div>
+                <div id="sales-report-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var csrfToken = "{{ csrf_token }}";
+        // Helper function to calculate date ranges for 6-months and 12-months reports
+        function calculateDateRange(reportType) {
+            const today = new Date();
+            let fromDate, toDate;
+
+            if (reportType === '6-months') {
+                // 6 months ago from today
+                fromDate = new Date(today);
+                fromDate.setMonth(today.getMonth() - 6);
+                toDate = today;
+            } else if (reportType === '12-months') {
+                // 12 months ago from today
+                fromDate = new Date(today);
+                fromDate.setFullYear(today.getFullYear() - 1);
+                toDate = today;
+            }
+
+            // Format dates as YYYY-MM-DD
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0'); 
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            return {
+                fromDate: formatDate(fromDate),
+                toDate: formatDate(toDate)
+            };
+        }
+
+        // Section Toggling
+        document.querySelectorAll('.icon-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const sectionId = this.getAttribute('data-section');
+
+                // Hide all sections by removing the 'active' class
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Show the selected section by adding the 'active' class
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                } else {
+                    console.error('Target section not found:', sectionId);
+                }
+
+                // Update active state for icon cards
+                document.querySelectorAll('.icon-card').forEach(c => {
+                    c.classList.remove('active');
+                });
+                this.classList.add('active');
+
+                // Scroll to top of the main content
+                document.querySelector('.main-content').scrollTop = 0;
+            });
+        });
+
+        // Report Section Scripts
+        document.getElementById('report-print-weekly-report').addEventListener('click', function() {
+            const fromDate = document.getElementById('report-from-date').value;
+            if (!fromDate) {
+                alert("Please enter a start date for the Weekly Report.");
+                return;
+            }
+
+            // Calculate the end date (7 days after the start date)
+            const startDate = new Date(fromDate);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 6); // 6 days after start date to make it a week
+            const toDate = endDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+            // Create FormData to send to the server
+            const formData = new FormData();
+            formData.append('report_type', 'weekly');
+            formData.append('from_date', fromDate);
+            formData.append('to_date', toDate);
+
+            fetch('/reports-and-analysis/export_pdf', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken  // Include CSRF token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server returned ${response.status}: ${text}`);
+                    });
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `weekly_report_${fromDate}_to_${toDate}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+                // Open the PDF in a new window and trigger print
+                const printWindow = window.open(url, '_blank');
+                printWindow.onload = function() {
+                    printWindow.print();
+                };
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Error generating PDF: ' + error.message);
+            });
+        });
+
+        // Orders Section Scripts
+        document.getElementById('orders-print-btn').addEventListener('click', function() {
+            const fromDate = document.getElementById('orders-from').value;
+            const toDate = document.getElementById('orders-to').value;
+            if (!fromDate || !toDate) {
+                alert("Please enter both From and To dates.");
+                return;
+            }
+            fetch('/reports-and-analysis/orders', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken  // Include CSRF token
+        },
+        body: JSON.stringify({ from_date: fromDate, to_date: toDate })
+    })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server returned ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                const tbody = document.getElementById('orders-table');
+                tbody.innerHTML = '';
+                if (data.orders.length > 0) {
+                    data.orders.forEach(order => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${order.order_number}</td>
+                            <td>${order.items}</td>
+                            <td>₹${parseFloat(order.total).toFixed(2)}</td>
+                            <td>${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4">No orders found for the selected date range.</td></tr>';
+                }
+                const tableContent = document.getElementById('orders-table').outerHTML;
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Orders Report (${fromDate} to ${toDate})</title>
+                        <style>
+                            body { font-family: 'Montserrat', sans-serif; margin: 20px; background-color: #fff; color: #000; }
+                            table { width: 100%; border-collapse: collapse; }
+                            th, td { border: 1px solid #000; padding: 20px; text-align: left; color: #000; }
+                            th { background-color: #fff; color: #000; }
+                            h2 { color: #000; }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>Orders Report (${fromDate} to ${toDate})</h2>
+                        <table>${tableContent}</table>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+                printWindow.close();
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Error loading orders: ' + error.message);
+            });
+        });
+
+        // Sales Section Scripts
+        function generateSalesReport(reportType) {
+            let fromDate, toDate;
+
+            // For 6-months and 12-months, calculate the dates automatically
+            if (reportType === '6-months' || reportType === '12-months') {
+                const dateRange = calculateDateRange(reportType);
+                fromDate = dateRange.fromDate;
+                toDate = dateRange.toDate;
+            } else {
+                // For other report types, get dates from input fields
+                if (reportType === 'most-sold') {
+                    fromDate = document.getElementById('most-sold-from').value;
+                    toDate = document.getElementById('most-sold-to').value;
+                } else if (reportType === 'most-used') {
+                    fromDate = document.getElementById('most-used-from').value;
+                    toDate = document.getElementById('most-used-to').value;
+                } else if (reportType === 'custom') {
+                    fromDate = document.getElementById('custom-from').value;
+                    toDate = document.getElementById('custom-to').value;
+                }
+
+                // Validation: Ensure both dates are provided for report types that require input
+                if (!fromDate || !toDate) {
+                    alert("Please enter both From and To dates.");
+                    return;
+                }
+            }
+
+            // Log the data being sent for debugging
+            console.log(`Sending request for ${reportType} report with from_date: ${fromDate}, to_date: ${toDate}`);
+
+            fetch('/reports-and-analysis/sales/report', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken  // Include CSRF token
+            },
+            body: JSON.stringify({ report_type: reportType, from_date: fromDate, to_date: toDate })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server returned ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    alert('Server error: ' + data.error);
+                    return;
+                }
+                const output = document.getElementById('sales-report-output');
+                output.innerHTML = '';
+                let reportHtml = '';
+
+                if (reportType === 'most-sold') {
+                    reportHtml = `<h2>Most Sold Items by Category (${fromDate} to ${toDate})</h2>`;
+                    for (const [category, items] of Object.entries(data.most_sold_by_category)) {
+                        reportHtml += `
+                            <h3>${category}</h3>
+                            <table>
+                                <tr><th>Item Name</th><th>Quantity Sold</th></tr>
+                                ${items.map(item => `<tr><td>${item.item_name}</td><td>${item.quantity}</td></tr>`).join('')}
+                            </table>
+                        `;
+                    }
+                } else if (reportType === 'most-used') {
+                    const top3 = data.top_3_groceries || [];
+                    const allGroceries = data.all_groceries || [];
+                    reportHtml = `
+                        <h2>REPORT DASHBOARD (Sales History)</h2>
+                        <h3>Grocery Usage (${fromDate} to ${toDate})</h3>
+                        <h4>Top 3 Most Used Groceries</h4>
+                        <table>
+                            <tr><th>Item Name</th><th>Quantity Used</th><th>Total Spent (₹)</th><th>Price Raise (₹/kg)</th></tr>
+                            ${top3.map(item => `
+                                <tr>
+                                    <td>${item.item_name || 'N/A'}</td>
+                                    <td>${Number(item.quantity_used || 0).toFixed(2)}</td>
+                                    <td>${Number(item.total_spent || 0).toFixed(2)}</td>
+                                    <td>${Number(item.price_raise || 0).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                        <h4>All Groceries</h4>
+                        ${allGroceries.map(item => `
+                            <div>
+                                <table>
+                                    <tr><th>Item Name</th><th>Quantity Used</th><th>Total Spent (₹)</th><th>Price Raise (₹/kg)</th></tr>
+                                    <tr>
+                                        <td>${item.item_name || 'N/A'}</td>
+                                        <td>${Number(item.quantity_used || 0).toFixed(2)}</td>
+                                        <td>${Number(item.total_spent || 0).toFixed(2)}</td>
+                                        <td>${Number(item.price_raise || 0).toFixed(2)}</td>
+                                    </tr>
+                                </table>
+                                <table>
+                                    <tr><th>Type</th><th>Quantity</th><th>Cost/Unit (₹)</th><th>Date</th><th>Seller</th></tr>
+                                    ${item.transactions.map(t => `
+                                        <tr>
+                                            <td>${t.type === 'stock_in' ? 'Stock In' : 'Stock Out'}</td>
+                                            <td>${Number(t.quantity || 0).toFixed(2)}</td>
+                                            <td>${Number(t.cost_per_unit || 0).toFixed(2)}</td>
+                                            <td>${t.date || 'N/A'}</td>
+                                            <td>${t.seller || 'N/A'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </table>
+                            </div>
+                        `).join('')}
+                    `;
+                } else if (reportType === 'custom') {
+                    const report = data.custom_report;
+                    let categoryHtml = '<h3>Sales by Category</h3>';
+                    for (const [category, stats] of Object.entries(report.by_category || {})) {
+                        categoryHtml += `
+                            <h4>${category}</h4>
+                            <table>
+                                <tr><th>Metric</th><th>Value</th></tr>
+                                <tr><td>Total Goods Sold</td><td>${stats.total_goods_sold || 0}</td></tr>
+                                <tr><td>Net Sales</td><td>₹${Number(stats.net_sales || 0).toFixed(2)}</td></tr>
+                                <tr><td>Profits</td><td>₹${Number(stats.profits || 0).toFixed(2)}</td></tr>
+                            </table>
+                        `;
+                    }
+                    reportHtml = `
+                        <h2>Custom Sales Report (${fromDate} to ${toDate})</h2>
+                        <table>
+                            <tr><th>Total Goods Sold</th><td>${report.total_goods_sold || 0}</td></tr>
+                            <tr><th>Net Sales</th><td>₹${Number(report.net_sales || 0).toFixed(2)}</td></tr>
+                            <tr><th>Profits</th><td>₹${Number(report.profits || 0).toFixed(2)}</td></tr>
+                        </table>
+                        ${categoryHtml}
+                    `;
+                } else if (reportType === '6-months' || reportType === '12-months') {
+                    const report = reportType === '6-months' ? data.six_months_report : data.twelve_months_report;
+                    if (!report) {
+                        alert(`No ${reportType} report data available from the server.`);
+                        console.log('Full Response:', data);
+                        return;
+                    }
+                    reportHtml = `
+                        <h2>${reportType === '6-months' ? '6 Months' : '12 Months'} Report (${fromDate} to ${toDate})</h2>
+                        <h3>Overview</h3>
+                        <table>
+                            <tr><th>Total Revenue</th><td>₹${Number(report.total_revenue || 0).toFixed(2)}</td></tr>
+                            <tr><th>Total Expenses</th><td>₹${Number(report.total_expenses || 0).toFixed(2)}</td></tr>
+                            <tr><th>Net Profit</th><td>₹${Number(report.profitability.net_profit || 0).toFixed(2)}</td></tr>
+                        </table>
+                        <h3>Key Highlights</h3>
+                        <table>
+                            <tr><th>Peak Sales Month</th><td>${report.sales_trends.peak_month.month || 'N/A'} (₹${Number(report.sales_trends.peak_month.sales || 0).toFixed(2)})</td></tr>
+                            <tr><th>Slow Sales Month</th><td>${report.sales_trends.slow_month.month || 'N/A'} (₹${Number(report.sales_trends.slow_month.sales || 0).toFixed(2)})</td></tr>
+                        </table>
+                        <h3>Monthly Revenue</h3>
+                        <table>
+                            <tr><th>Month</th><th>Sales (₹)</th></tr>
+                            ${report.monthly_revenue.map(m => `<tr><td>${m.month}</td><td>${Number(m.sales || 0).toFixed(2)}</td></tr>`).join('')}
+                        </table>
+                        <h3>Category-Wise Sales</h3>
+                        <table>
+                            <tr><th>Category</th><th>Sales (₹)</th><th>Quantity</th></tr>
+                            ${Object.entries(report.category_wise_sales).map(([cat, stats]) => `
+                                <tr><td>${cat}</td><td>${Number(stats.sales || 0).toFixed(2)}</td><td>${stats.quantity || 0}</td></tr>
+                            `).join('')}
+                        </table>
+                        <h3>Best-Selling Items</h3>
+                        <table>
+                            <tr><th>Item Name</th><th>Quantity</th><th>Category</th></tr>
+                            ${report.best_selling_items.map(item => `
+                                <tr><td>${item.item_name}</td><td>${item.quantity}</td><td>${item.category}</td></tr>
+                            `).join('')}
+                        </table>
+                        <h3>Profitability</h3>
+                        <table>
+                            <tr><th>Gross Profit</th><td>₹${Number(report.profitability.gross_profit || 0).toFixed(2)}</td></tr>
+                            <tr><th>Net Profit</th><td>₹${Number(report.profitability.net_profit || 0).toFixed(2)}</td></tr>
+                            <tr><th>Gross Margin</th><td>${Number(report.profitability.gross_margin || 0).toFixed(2)}%</td></tr>
+                            <tr><th>Net Margin</th><td>${Number(report.profitability.net_margin || 0).toFixed(2)}%</td></tr>
+                        </table>
+                    `;
+                }
+                output.innerHTML = reportHtml;
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>${reportType === '6-months' ? '6 Months' : reportType === '12-months' ? '12 Months' : reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report</title>
+                        <style>
+                            body { font-family: 'Montserrat', sans-serif; margin: 20px; background-color: #fff; color: #000; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #000; padding: 10px; text-align: left; color: #000; }
+                            th { background-color: #fff; color: #000; }
+                            h2, h3, h4 { color: #000; }
+                        </style>
+                    </head>
+                    <body>${reportHtml}</body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+                printWindow.close();
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Failed to fetch report: ' + error.message);
+            });
+        }
+
+        // Export Sales Chart Function
+        function exportSalesChart(reportType) {
+            let fromDate, toDate;
+
+            // For 6-months and 12-months, calculate the dates automatically
+            if (reportType === '6-months' || reportType === '12-months') {
+                const dateRange = calculateDateRange(reportType);
+                fromDate = dateRange.fromDate;
+                toDate = dateRange.toDate;
+            } else {
+                // For other report types, get dates from input fields
+                if (reportType === 'most-sold') {
+                    fromDate = document.getElementById('most-sold-from').value;
+                    toDate = document.getElementById('most-sold-to').value;
+                } else if (reportType === 'most-used') {
+                    fromDate = document.getElementById('most-used-from').value;
+                    toDate = document.getElementById('most-used-to').value;
+                } else if (reportType === 'custom') {
+                    fromDate = document.getElementById('custom-from').value;
+                    toDate = document.getElementById('custom-to').value;
+                }
+
+                // Validation: Ensure both dates are provided for report types that require input
+                if (!fromDate || !toDate) {
+                    alert("Please enter both From and To dates.");
+                    return;
+                }
+            }
+
+            const formData = new FormData();
+            formData.append('report_type', reportType);
+            formData.append('from_date', fromDate); // Changed to match server expectation
+            formData.append('to_date', toDate);     // Changed to match server expectation
+
+            // Log the FormData for debugging
+            console.log(`Exporting Chart for ${reportType} with from_date: ${fromDate}, to_date: ${toDate}`);
+
+            fetch('/reports-and-analysis/export_chart', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken  // Include CSRF token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Server returned ${response.status}: ${text}`);
+                    });
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${reportType}_chart.png`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Export chart error:', error);
+                alert('Failed to export chart: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>

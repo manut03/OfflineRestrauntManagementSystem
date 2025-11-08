@@ -27,6 +27,23 @@ An **Offline Restaurant Management System** built using **Python, HTML, CSS, Jav
 
 ---
 
+## 🖼️ Project Overview (Screenshots)
+
+Below are some screenshots showcasing the system’s key interfaces and functionalities:
+
+- **Billing (Order Page)**
+- **Billing (Payment Page)**
+- **Inventory**
+- **Menu Board**
+- **Report Dashboard (Orders History)**
+- **Report Dashboard (Sales)**
+- **Report Dashboard**
+- **Sample Output of Printed Report**
+
+_All images are available in `.png` format within the project folder._
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Frontend:** HTML, CSS, JavaScript  
@@ -84,8 +101,30 @@ Now open your browser and go to:
 👉 [http://localhost:5000](http://localhost:5000)
 
 ---
+## 🎥 YouTube Demo
+
+Watch the project demo on YouTube:
+🔗 https://youtu.be/AOq1N8khpms
+
+(The video showcases how the project works in real-time.)
+---
+## 🌱 Future Applications of the Project
+
+As technology evolves, the Offline Restaurant Management System (ORMS) can be expanded with additional functionalities to enhance its efficiency and usability. Below are some potential future improvements:
+
+Multi-User Support:
+Implementing a login system with role-based access control would allow different user types (e.g., cashiers, managers, and administrators) to have specific permissions within the system.
+
+Mobile Application:
+Developing a companion mobile app for restaurant staff would enable order processing, inventory management, and reporting on-the-go.
+
+Advanced Analytics:
+Integrating machine learning algorithms could help with sales forecasting, inventory optimization, and customer preference analysis, providing more data-driven insights.
+
+Cloud Integration:
+Hosting the system on cloud platforms such as AWS or Google Cloud would improve scalability, data security, and remote access for business owners.
 
 ## 👨‍💻 Author
-
+---
 **Manasa**  
 🌐 [GitHub Profile](https://github.com/manut03)

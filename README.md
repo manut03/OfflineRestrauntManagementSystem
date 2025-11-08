@@ -26,21 +26,33 @@ An **Offline Restaurant Management System** built using **Python, HTML, CSS, Jav
 - Exports data for business insights.
 
 ---
-
 ## 🖼️ Project Overview (Screenshots)
 
 Below are some screenshots showcasing the system’s key interfaces and functionalities:
 
-- **Billing (Order Page)**
-- **Billing (Payment Page)**
-- **Inventory**
-- **Menu Board**
-- **Report Dashboard (Orders History)**
-- **Report Dashboard (Sales)**
-- **Report Dashboard**
-- **Sample Output of Printed Report**
+### 🧾 Billing (Order Page)
+![Billing Order Page](screenshots/billing(order).png)
 
-_All images are available in `.png` format within the project folder._
+### 💳 Billing (Payment Page)
+![Billing Payment Page](screenshots/billing(paymentpage).png)
+
+### 📦 Inventory Management
+![Inventory Page](screenshots/inventory.png)
+
+### 🍴 Menu Board
+![Menu Board](screenshots/menuboard.png)
+
+### 📊 Reports Dashboard (Orders History)
+![Reports Dashboard - Orders History](screenshots/reportdashboard(ordershistory).png)
+
+### 📈 Reports Dashboard (Sales)
+![Reports Dashboard - Sales](screenshots/reportdashboard(sales).png)
+
+### 📋 Reports Dashboard (Overview)
+![Reports Dashboard](screenshots/reportdashboard.png)
+
+### 🖨️ Sample Output of Printed Report
+![Sample Printed Report](screenshots/SampleOutputOfPrintedReport.png)
 
 ---
 

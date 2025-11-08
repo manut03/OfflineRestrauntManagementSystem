@@ -8,7 +8,7 @@ An **Offline Restaurant Management System** built using **Python, HTML, CSS, Jav
 
 ### 🧾 Billing Module
 - Generate and print customer bills.
-- Auto-calculates taxes and total amount.
+- Automatically calculates taxes and total amounts.
 - Saves billing history in the database.
 
 ### 🍴 Menu Module
@@ -38,27 +38,54 @@ An **Offline Restaurant Management System** built using **Python, HTML, CSS, Jav
 
 ## ⚙️ Setup Instructions
 
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/username/repository.git
-cd OfflineRestaurantManagementSystem
+### 1️⃣ Clone the Repository
 
-### 2️⃣ Set up a virtual environment
+```bash
+git clone https://github.com/manut03/OfflineRestaurantManagementSystem.git
+cd OfflineRestaurantManagementSystem
+```
+
+---
+
+### 2️⃣ Set Up a Virtual Environment
+
 ```bash
 python -m venv venv
 source venv/Scripts/activate   # Windows
 pip install -r requirements.txt
+```
 
-### 3️⃣ Restore the database
-1.Open MySQL Workbench or command line.
-2.Create the database:
-```sql
-CREATE DATABASE restaurant_db;
-3.Import the SQL dump:
-```bash
-mysql -u root -p restaurant_db < database/restaurant.sql
+---
 
-### 4️⃣ Run the application
+### 3️⃣ Restore the Database
+
+1. Open **MySQL Workbench** or the command line.  
+2. Create the database:
+
+   ```sql
+   CREATE DATABASE restaurant_db;
+   ```
+
+3. Import the SQL dump:
+
+   ```bash
+   mysql -u root -p restaurant_db < database/restaurant.sql
+   ```
+
+---
+
+### 4️⃣ Run the Application
+
 ```bash
 python app.py
-Open your browser and go to http://localhost:5000
+```
+
+Now open your browser and go to:  
+👉 [http://localhost:5000](http://localhost:5000)
+
+---
+
+## 👨‍💻 Author
+
+**Manasa**  
+🌐 [GitHub Profile](https://github.com/manut03)
